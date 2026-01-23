@@ -18,7 +18,7 @@ MonoBehaviour:
   m_PlatformId: 84a3bb9e7420477f885e98145999eb20
   m_PlatformBuildProfile:
     rid: 8225331521814003713
-  m_OverrideGlobalSceneList: 0
+  m_OverrideGlobalSceneList: 1
   m_Scenes: []
   m_HasScriptingDefines: 1
   m_ScriptingDefines: []

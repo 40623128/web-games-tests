@@ -1,83 +1,193 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Shooting")]
+    public GameObject bulletPrefab;
+    public Transform firePoint;
+    public float bulletSpeed = 12f;
+    public float shotInterval = 0.12f;
+    public int shotsBeforeCooldown = 10;
+    public float cooldownTime = 1.5f;
+    public bool holdToFire = true;
+
+    private float shotTimer = 0f;
+    private float cooldownTimer = 0f;
+    private int shotsLeft = 0;
+
+    [Header("Score")]
     private float elapsedTime = 0f;
     private float score = 0f;
     public float scoreMultiplier = 10f;
 
+    [Header("Movement")]
     public float thrustForce = 1f;
     public float maxSpeed = 5f;
     public GameObject boosterFlame;
+
+    [Header("UI")]
     public UIDocument uiDocument;
     private Label scoreText;
-
     private Button restartButton;
 
+    [Header("VFX")]
     public GameObject explosionEffect;
 
-    Rigidbody2D rb;
+    private Rigidbody2D rb;
+    private Collider2D playerCol;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        scoreText = uiDocument.rootVisualElement.Q<Label>("ScoreLabel");
+        playerCol = GetComponent<Collider2D>();
 
-        restartButton = uiDocument.rootVisualElement.Q<Button>("RestartButton");
-        restartButton.style.display = DisplayStyle.None;
-        restartButton.clicked += ReloadScene;
-    }
-    // UpdateScore
-    void UpdateScore()
-    {
-        elapsedTime += Time.deltaTime;
-        score = Mathf.FloorToInt(elapsedTime * scoreMultiplier);
-        Debug.Log("Score: " + score);
-        scoreText.text = "Score: " + score;
-    }
-    void MovePlayer()
-    {
-        if (Mouse.current.leftButton.isPressed)
+        shotsLeft = Mathf.Max(1, shotsBeforeCooldown);
+
+        if (uiDocument != null)
         {
-            // Calculate mouse direction
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.value);
-            Vector2 direction = (mousePos - transform.position).normalized;
-
-
-            // Move player in direction of mouse
-            transform.up = direction;
-            rb.AddForce(direction * thrustForce);
-            if (rb.linearVelocity.magnitude > maxSpeed)
+            scoreText = uiDocument.rootVisualElement.Q<Label>("ScoreLabel");
+            restartButton = uiDocument.rootVisualElement.Q<Button>("RestartButton");
+            if (restartButton != null)
             {
-                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+                restartButton.style.display = DisplayStyle.None;
+                restartButton.clicked += ReloadScene;
             }
         }
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+
+        if (firePoint == null)
         {
-            boosterFlame.SetActive(true);
-        }
-        else if (Mouse.current.leftButton.wasReleasedThisFrame)
-        {
-            boosterFlame.SetActive(false);
+            Transform fp = transform.Find("FirePoint");
+            if (fp != null) firePoint = fp;
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         UpdateScore();
         MovePlayer();
+        HandleShooting();
     }
+
+    void UpdateScore()
+    {
+        elapsedTime += Time.deltaTime;
+        score = Mathf.FloorToInt(elapsedTime * scoreMultiplier);
+        if (scoreText != null) scoreText.text = "Score: " + score;
+    }
+
+    void MovePlayer()
+    {
+        if (Mouse.current == null) return;
+
+        if (Mouse.current.leftButton.isPressed)
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.value);
+            Vector2 direction = (mousePos - transform.position).normalized;
+
+            transform.up = direction;
+            rb.AddForce(direction * thrustForce);
+
+            if (rb.linearVelocity.magnitude > maxSpeed)
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+        }
+
+        if (Mouse.current.leftButton.wasPressedThisFrame) boosterFlame.SetActive(true);
+        else if (Mouse.current.leftButton.wasReleasedThisFrame) boosterFlame.SetActive(false);
+    }
+
+    void HandleShooting()
+    {
+        if (Mouse.current == null) return;
+
+        shotTimer = Mathf.Max(0f, shotTimer - Time.deltaTime);
+
+        if (cooldownTimer > 0f)
+        {
+            cooldownTimer = Mathf.Max(0f, cooldownTimer - Time.deltaTime);
+            if (cooldownTimer <= 0f)
+            {
+                shotsLeft = Mathf.Max(1, shotsBeforeCooldown);
+                shotTimer = 0f;
+            }
+            return;
+        }
+
+        if (shotsLeft <= 0)
+        {
+            cooldownTimer = cooldownTime;
+            return;
+        }
+
+        bool wantFire = holdToFire
+            ? Mouse.current.rightButton.isPressed
+            : Mouse.current.rightButton.wasPressedThisFrame;
+
+        if (!wantFire) return;
+        if (shotTimer > 0f) return;
+
+        FireOne();
+        shotTimer = shotInterval;
+        shotsLeft--;
+
+        if (shotsLeft <= 0)
+        {
+            cooldownTimer = cooldownTime;
+            shotTimer = 0f;
+        }
+    }
+
+    void FireOne()
+    {
+        if (bulletPrefab == null) return;
+
+        Vector3 spawnPos = (firePoint != null) ? firePoint.position : transform.position;
+        GameObject b = Instantiate(bulletPrefab, spawnPos, transform.rotation);
+
+        Rigidbody2D brb = b.GetComponent<Rigidbody2D>();
+        if (brb != null)
+            brb.linearVelocity = (Vector2)transform.up * bulletSpeed;
+
+        // ✅ 避免子彈誤殺自己（即使你之後改規則也安全）
+        if (playerCol != null)
+        {
+            Collider2D bulletCol = b.GetComponent<Collider2D>();
+            if (bulletCol != null)
+                Physics2D.IgnoreCollision(bulletCol, playerCol, true);
+        }
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Destroy(gameObject);
-        Instantiate(explosionEffect, transform.position, transform.rotation);
-        restartButton.style.display = DisplayStyle.Flex;
+        // ✅ 撞到隕石或邊界就死
+        if (collision.collider.CompareTag("Obstacle") || collision.collider.CompareTag("Border"))
+        {
+            Die();
+        }
     }
+
+    // 如果你邊界用 Trigger，這個也一起支援
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Obstacle") || other.CompareTag("Border"))
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Destroy(gameObject);
+
+        if (explosionEffect != null)
+            Instantiate(explosionEffect, transform.position, transform.rotation);
+
+        if (restartButton != null)
+            restartButton.style.display = DisplayStyle.Flex;
+    }
+
     void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);

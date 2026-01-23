@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 945336139281061106}
   m_Layer: 0
   m_Name: Obstacle
-  m_TagString: Untagged
+  m_TagString: Border
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -186,3 +186,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6508b693f1f3894699065527bd55a8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
+  minSizeX: 0.25
+  maxSizeX: 2
+  minSizeY: 0.25
+  maxSizeY: 2
+  minSpeed: 100
+  maxSpeed: 250
+  bounceEffectPrefab: {fileID: 3386894873801615580, guid: 06f1af8bd007da348b330cfd2b97f985, type: 3}
+  destroyEffectPrefab: {fileID: 3386894873801615580, guid: c942d6839ed695841a5975bafa8c0e4d, type: 3}
+  effectLife: 1
+  maxSpinSpeed: 10
+  destroyBulletOnHit: 1
