@@ -1,0 +1,65 @@
+!doctype html
+html lang=zh-Hant
+head
+  meta charset=utf-8 
+  meta name=viewport content=width=device-width,initial-scale=1 
+  titleProject Versionstitle
+  meta name=description content=Version index for GitHub Pages 
+  style
+    root { color-scheme light dark; }
+    body { margin 0; font-family system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans TC, sans-serif; }
+    .wrap { max-width 900px; margin 0 auto; padding 32px 18px; }
+    header { display flex; align-items baseline; gap 12px; flex-wrap wrap; }
+    h1 { margin 0; font-size 28px; }
+    .sub { opacity .7; font-size 14px; }
+    .card {
+      margin-top 18px;
+      border 1px solid rgba(127,127,127,.25);
+      border-radius 14px;
+      padding 16px;
+      background rgba(127,127,127,.06);
+    }
+    ul { list-style none; padding 0; margin 0; display grid; gap 10px; }
+    a.version {
+      display flex;
+      justify-content space-between;
+      gap 12px;
+      align-items center;
+      padding 12px 14px;
+      border-radius 12px;
+      border 1px solid rgba(127,127,127,.25);
+      text-decoration none;
+      color inherit;
+      background rgba(127,127,127,.08);
+      transition transform .08s ease, background .08s ease;
+    }
+    a.versionhover { transform translateY(-1px); background rgba(127,127,127,.13); }
+    .tag { font-family ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+           font-size 12px; opacity .75; }
+    footer { margin-top 22px; font-size 12px; opacity .7; }
+  style
+head
+body
+  div class=wrap
+    header
+      h1版本列表h1
+      div class=sub選擇要開啟的版本div
+    header
+
+    div class=card
+      ul
+        li
+          a class=version href=.V0.0.1index.html
+            spanV0.0.1span
+            span class=tagV0.0.1index.htmlspan
+          a
+        li
+      ul
+    div
+
+    footer
+      divTip：若你之後新增版本資料夾（例如 V0.0.2），只要在這裡再加一個連結即可。div
+    footer
+  div
+body
+html
