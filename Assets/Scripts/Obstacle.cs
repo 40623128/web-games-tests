@@ -9,11 +9,20 @@ public class Obstacle : MonoBehaviour
     public float maxSizeY = 2.0f;
 
     public float minSpeed = 50.0f;
-    public float maxSpeed = 150.0f;
+    public float maxSpeed = 50.0f;
+
+    [Header("Drop")]
+    public GameObject goldOrePrefab;   // 金礦 Prefab
+    public int goldDropCount = 1;      // 一顆隕石掉幾個
+    public float dropSpread = 0.2f;    // 掉落散開範圍
+
+    [Header("New Spawn Speed vs Game Time")]
+    public float growthRate = 0.08f;     // 每秒 +8%（只影響新生成隕石）
+    public float maxMultiplier = 5.0f;   // 最多 3 倍
 
     [Header("Effects")]
-    public GameObject bounceEffectPrefab;   // 撞牆/撞物 的特效（可留可不留）
-    public GameObject destroyEffectPrefab;  // ✅ 隕石消失特效（爆炸）
+    public GameObject bounceEffectPrefab;
+    public GameObject destroyEffectPrefab;
     public float effectLife = 1f;
 
     [Header("Spin")]
@@ -34,8 +43,16 @@ public class Obstacle : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
 
+        // ✅ 用遊戲經過時間決定這顆「出生速度倍率」
+        float t = Time.timeSinceLevelLoad;
+        float multiplier = 1f + t * growthRate;         // 線性成長
+        multiplier = Mathf.Min(multiplier, maxMultiplier);
+
         float randomSpeed = UnityEngine.Random.Range(minSpeed, maxSpeed) / randomMass;
+        randomSpeed *= multiplier;                      // ✅ 只影響新生成的隕石
+
         Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
+        if (randomDirection.sqrMagnitude < 0.001f) randomDirection = Vector2.right;
 
         rb.AddForce(randomDirection * randomSpeed);
 
@@ -43,32 +60,30 @@ public class Obstacle : MonoBehaviour
         rb.AddTorque(randomTorque);
     }
 
-    // ✅ 子彈（Trigger）打到：播放 destroy 特效 + 隕石消失
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Bullet")) return;
 
-        // 取得碰撞點：用子彈 collider 在隕石上的最近點
         Vector2 hitPoint = other.ClosestPoint(transform.position);
-
         PlayDestroyEffect(hitPoint);
 
         if (destroyBulletOnHit) Destroy(other.gameObject);
 
-        Destroy(gameObject);
+        DropGold();              // ✅ 掉金礦
+        Destroy(gameObject);      // ✅ 隕石消失
     }
 
-    // 可選：撞到其他物件時播放 bounce 特效
+
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // 如果子彈不是 Trigger 而是 Collision，也可兼容
         if (collision.collider.CompareTag("Bullet"))
         {
             Vector2 contactPoint = collision.GetContact(0).point;
             PlayDestroyEffect(contactPoint);
 
             if (destroyBulletOnHit) Destroy(collision.gameObject);
-            Destroy(gameObject);
+            DropGold();              // ✅ 掉金礦
+            Destroy(gameObject);      // ✅ 隕石消失
             return;
         }
 
@@ -86,5 +101,15 @@ public class Obstacle : MonoBehaviour
 
         GameObject fx = Instantiate(destroyEffectPrefab, pos, Quaternion.identity);
         Destroy(fx, effectLife);
+    }
+    void DropGold()
+    {
+        if (goldOrePrefab == null) return;
+
+        for (int i = 0; i < goldDropCount; i++)
+        {
+            Vector2 offset = UnityEngine.Random.insideUnitCircle * dropSpread;
+            Instantiate(goldOrePrefab, (Vector2)transform.position + offset, Quaternion.identity);
+        }
     }
 }

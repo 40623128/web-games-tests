@@ -294,7 +294,7 @@ MonoBehaviour:
   bordersRoot: {fileID: 1673212326}
   obstaclePrefab: {fileID: 1761646699039116710, guid: 37ea991bafc7906498f8a4a5ed038a0d, type: 3}
   player: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
-  spawnInterval: 1
+  spawnInterval: 1.5
   laneWidth: 1
   inset: 0.05
   safeRadius: 1.5
@@ -364,8 +364,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -994,7 +994,7 @@ PrefabInstance:
       objectReference: {fileID: 9036124491040607066, guid: ac206852be2d58248bbea18488d57b2b, type: 3}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: cooldownTime
-      value: 0.5
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: explosionEffect
@@ -1010,7 +1010,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: m_LocalPosition.z

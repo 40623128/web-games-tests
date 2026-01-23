@@ -5,6 +5,12 @@ using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+
+    [Header("Collect")]
+    public int gold = 0;
+    private Label goldText;
+
+
     [Header("Shooting")]
     public GameObject bulletPrefab;
     public Transform firePoint;
@@ -13,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public int shotsBeforeCooldown = 10;
     public float cooldownTime = 1.5f;
     public bool holdToFire = true;
+
 
     private float shotTimer = 0f;
     private float cooldownTimer = 0f;
@@ -56,6 +63,8 @@ public class PlayerController : MonoBehaviour
                 restartButton.clicked += ReloadScene;
             }
         }
+        goldText = uiDocument.rootVisualElement.Q<Label>("GoldCount");
+        UpdateGoldUI();
 
         if (firePoint == null)
         {
@@ -80,23 +89,35 @@ public class PlayerController : MonoBehaviour
 
     void MovePlayer()
     {
-        if (Mouse.current == null) return;
+        if (Mouse.current == null || Camera.main == null) return;
 
+        // 1) 永遠讓飛船頭朝向滑鼠
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.value);
+        mousePos.z = 0f;
+        Vector2 direction = ((Vector2)(mousePos - transform.position)).normalized;
+
+        if (direction.sqrMagnitude > 0.0001f)
+            transform.up = direction;
+
+        // 2) 按住左鍵時持續推進
         if (Mouse.current.leftButton.isPressed)
         {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.value);
-            Vector2 direction = (mousePos - transform.position).normalized;
+            // 持續施力（每幀推）
+            rb.AddForce(direction * thrustForce, ForceMode2D.Force);
 
-            transform.up = direction;
-            rb.AddForce(direction * thrustForce);
-
+            // 限速
             if (rb.linearVelocity.magnitude > maxSpeed)
                 rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
-        }
 
-        if (Mouse.current.leftButton.wasPressedThisFrame) boosterFlame.SetActive(true);
-        else if (Mouse.current.leftButton.wasReleasedThisFrame) boosterFlame.SetActive(false);
+            boosterFlame.SetActive(true);
+        }
+        else
+        {
+            boosterFlame.SetActive(false);
+        }
     }
+
+
 
     void HandleShooting()
     {
@@ -191,5 +212,17 @@ public class PlayerController : MonoBehaviour
     void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void AddGold(int amount)
+    {
+        gold += amount;
+        UpdateGoldUI();
+    }
+
+    void UpdateGoldUI()
+    {
+        if (goldText != null)
+            goldText.text = "Gold: " + gold;
     }
 }
