@@ -180,6 +180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bullet
   lifeTime: 3
-  bordersRoot: {fileID: 0}
+  bordersRoot: {fileID: 9161135417461589565, guid: 8eed19249df41704e8adf3b82c32ab90, type: 3}
   inset: 0.05
   destroyObstacle: 1
+  pierceCount: 1

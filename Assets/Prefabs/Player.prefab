@@ -719,17 +719,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37805a91cc16777479e2b07efe377017, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  gold: 0
   bulletPrefab: {fileID: 0}
   firePoint: {fileID: 0}
-  bulletSpeed: 12
-  shotInterval: 0.12
-  shotsBeforeCooldown: 10
-  cooldownTime: 1.5
+  bulletSpeed: 6
+  shotInterval: 1
+  shotsBeforeCooldown: 1
+  cooldownTime: 2
   holdToFire: 1
   scoreMultiplier: 10
-  thrustForce: 4
-  maxSpeed: 5
+  thrustForce: 1
+  maxSpeed: 3
   boosterFlame: {fileID: 680014966121956319}
+  bulletPierce: 0
   uiDocument: {fileID: 0}
   explosionEffect: {fileID: 5130939182950275616, guid: 10f783a29861ab44dae459770cd99b5e, type: 3}
 --- !u!1 &7672254935086295130

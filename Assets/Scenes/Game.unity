@@ -124,6 +124,74 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 680014966121956319, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
   m_PrefabInstance: {fileID: 8242514562844472163}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &750278620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 750278622}
+  - component: {fileID: 750278623}
+  - component: {fileID: 750278624}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &750278622
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750278620}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &750278623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750278620}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e1c231d22ab034ea8093e5b8f433f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeByScore
+  uiDocument: {fileID: 1605148478}
+  player: {fileID: 1597998165}
+  firstUpgradeScore: 100
+  upgradeEveryScore: 100
+--- !u!114 &750278624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750278620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6278f2ad0bb353a40970e2d788cf708b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeByGold
+  uiDocument: {fileID: 1605148478}
+  player: {fileID: 1597998165}
+  firstUpgradeGold: 1
+  upgradeEveryGold: 1
+  spendGoldWhenUpgrade: 0
+  incrementStart: 1
+  incrementStep: 1
 --- !u!1 &1000257522
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,6 +382,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1597998165 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+  m_PrefabInstance: {fileID: 8242514562844472163}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37805a91cc16777479e2b07efe377017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
 --- !u!1 &1605148477
 GameObject:
   m_ObjectHideFlags: 0
@@ -981,8 +1060,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1605148478}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: bulletSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: thrustForce
-      value: 4
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: boosterFlame
@@ -994,6 +1077,10 @@ PrefabInstance:
       objectReference: {fileID: 9036124491040607066, guid: ac206852be2d58248bbea18488d57b2b, type: 3}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: cooldownTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: shotInterval
       value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
@@ -1002,7 +1089,19 @@ PrefabInstance:
       objectReference: {fileID: 5130939182950275616, guid: 10f783a29861ab44dae459770cd99b5e, type: 3}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: shotsBeforeCooldown
-      value: 3
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1062,3 +1161,4 @@ SceneRoots:
   - {fileID: 8242514562844472163}
   - {fileID: 1605148479}
   - {fileID: 1322769033}
+  - {fileID: 750278622}

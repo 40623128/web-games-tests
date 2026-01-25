@@ -35,6 +35,9 @@ public class PlayerController : MonoBehaviour
     public float maxSpeed = 5f;
     public GameObject boosterFlame;
 
+    [Header("Bullet Upgrades")]
+    public int bulletPierce = 0; // 0=不穿透，1=可穿1顆...
+
     [Header("UI")]
     public UIDocument uiDocument;
     private Label scoreText;
@@ -45,6 +48,10 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D rb;
     private Collider2D playerCol;
+
+    public bool IsAlive { get; private set; } = true;
+    public int CurrentScore => Mathf.FloorToInt(elapsedTime * scoreMultiplier);
+
 
     void Start()
     {
@@ -75,10 +82,20 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!IsAlive) return;
+
+        // ✅ 升級選單暫停中：關掉噴射火焰 + 不處理移動/射擊
+        if (Time.timeScale == 0f)
+        {
+            if (boosterFlame != null) boosterFlame.SetActive(false);
+            return;
+        }
+
         UpdateScore();
         MovePlayer();
         HandleShooting();
     }
+
 
     void UpdateScore()
     {
@@ -171,6 +188,10 @@ public class PlayerController : MonoBehaviour
         if (brb != null)
             brb.linearVelocity = (Vector2)transform.up * bulletSpeed;
 
+        var bullet = b.GetComponent<Bullet>();
+        if (bullet != null)
+            bullet.pierceCount = bulletPierce;
+
         // ✅ 避免子彈誤殺自己（即使你之後改規則也安全）
         if (playerCol != null)
         {
@@ -200,6 +221,7 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
+        IsAlive = false;
         Destroy(gameObject);
 
         if (explosionEffect != null)
@@ -225,4 +247,50 @@ public class PlayerController : MonoBehaviour
         if (goldText != null)
             goldText.text = "Gold: " + gold;
     }
+    public void ApplyUpgrade(UpgradeType type, float value)
+    {
+        switch (type)
+        {
+            case UpgradeType.ThrustUp:
+                thrustForce *= (1f + value); // value=0.25 => +25%
+                break;
+
+            case UpgradeType.MaxSpeedUp:
+                maxSpeed *= (1f + value);
+                break;
+
+            case UpgradeType.BulletSpeedUp:
+                bulletSpeed *= (1f + value);
+                break;
+
+            case UpgradeType.FireRateUp:
+                // value 是負數：shotInterval 變小 => 更快
+                shotInterval = Mathf.Max(0.03f, shotInterval * value);
+                break;
+
+            case UpgradeType.MagSizeUp:
+                shotsBeforeCooldown += Mathf.RoundToInt(value);
+                shotsBeforeCooldown = Mathf.Max(1, shotsBeforeCooldown);
+                // 你也可以選擇立刻補滿：
+                // shotsLeft = shotsBeforeCooldown;
+                break;
+
+            case UpgradeType.CooldownDown:
+                cooldownTime = Mathf.Max(0.1f, cooldownTime * value); // value=-0.2 => 冷卻變短
+                break;
+
+            case UpgradeType.PierceUp:
+                bulletPierce += Mathf.RoundToInt(value);   // value=1 => 穿透+1
+                bulletPierce = Mathf.Clamp(bulletPierce, 0, 50); // 防呆上限
+                break;
+        }
+
+        Debug.Log($"Upgrade applied: {type} ({value})");
+    }
+
+    public void RefreshGoldUI()
+    {
+        goldText.text = "Gold:" + gold;
+    }
+
 }

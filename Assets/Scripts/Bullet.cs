@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+// using static UnityEditor.PlayerSettings;
 
 public class Bullet : MonoBehaviour
 {
@@ -8,15 +9,22 @@ public class Bullet : MonoBehaviour
     public Transform bordersRoot;   // 指到場景的 Borders
     public float inset = 0.05f;     // 再往內縮一點，避免貼牆判斷抖動
 
-    [Header("Hit Behavior")]
-    public bool destroyObstacle = true; // 打到隕石是否要一起打掉
+    [Header("Piercing")]
+    public int pierceCount = 0;          // ✅ 可穿透幾顆隕石（0=不穿透，1=可穿1顆...）
 
+    private int pierceLeft;
     private Bounds innerBounds;
     private bool hasBounds = false;
 
+    private Collider2D myCol;
+    private readonly System.Collections.Generic.HashSet<int> hitIds
+        = new System.Collections.Generic.HashSet<int>();
+
     void Start()
     {
+        myCol = GetComponent<Collider2D>();
         Destroy(gameObject, lifeTime);
+        pierceLeft = Mathf.Max(0, pierceCount);
 
         // 自動找名為 Borders 的物件（你也可以在 Inspector 指定）
         if (bordersRoot == null)
@@ -59,13 +67,36 @@ public class Bullet : MonoBehaviour
             return;
         }
 
-        // ✅ 撞到隕石就消失（可選：順便打掉隕石）
-        if (other.CompareTag("Obstacle"))
+        // ✅ 撞到隕石
+        if (!other.CompareTag("Obstacle")) return;
+
+        // ✅ 同一顆隕石只算一次（避免多 collider / 同幀多次觸發）
+        int id = other.transform.root.gameObject.GetInstanceID();
+        if (hitIds.Contains(id)) return;
+        hitIds.Add(id);
+
+        // ✅ 讓隕石自己處理：爆炸 + 掉金 + 消失
+        var obs = other.GetComponentInParent<Obstacle>();
+        if (obs != null)
         {
-            if (destroyObstacle) Destroy(other.gameObject);
-            Destroy(gameObject);
+            Vector2 hitPoint = other.ClosestPoint(transform.position);
+            obs.HitByBullet(hitPoint);
+        }
+
+        // ✅ 穿透：還有次數就留下來
+        if (pierceLeft > 0)
+        {
+            pierceLeft--;
+
+            // 避免子彈卡在同一 collider 內一直觸發
+            if (myCol != null)
+                Physics2D.IgnoreCollision(myCol, other, true);
+
             return;
         }
+
+        // ✅ 沒穿透次數了 -> 子彈消失
+        Destroy(gameObject);
     }
 
     // 用四面牆 collider 的「內緣」算出真正的遊戲內部範圍
