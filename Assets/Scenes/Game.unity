@@ -359,8 +359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83d73eb06181997488bbfe32613ffc3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleSpawner
-  bordersRoot: {fileID: 1673212326}
-  obstaclePrefab: {fileID: 1761646699039116710, guid: 37ea991bafc7906498f8a4a5ed038a0d, type: 3}
+  bordersRoot: {fileID: 9161135417461589565, guid: 8eed19249df41704e8adf3b82c32ab90, type: 3}
+  obstaclePrefab: {fileID: 1761646699039116710, guid: e0488da458c15b34cb573b864a2cad70, type: 3}
   player: {fileID: 5601048582374953469, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
   spawnInterval: 1.5
   laneWidth: 1
@@ -1052,6 +1052,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: maxSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: firePoint
       value: 
       objectReference: {fileID: 2026747346}
@@ -1061,11 +1065,11 @@ PrefabInstance:
       objectReference: {fileID: 1605148478}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: bulletSpeed
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: thrustForce
-      value: 0.5
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 2399051127589403186, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: boosterFlame

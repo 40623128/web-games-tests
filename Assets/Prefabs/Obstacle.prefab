@@ -186,11 +186,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6508b693f1f3894699065527bd55a8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
-  minSizeX: 0.5
-  maxSizeX: 2
-  minSizeY: 0.5
-  maxSizeY: 2
-  minSpeed: 50
+  minScale: 0.5
+  maxScale: 2
+  minAspect: 0.5
+  maxAspect: 2
+  minSpeed: 60
   maxSpeed: 100
   goldOrePrefab: {fileID: 6302536220776999497, guid: 860205c564d44fc4f80683c7d6665dc6, type: 3}
   goldDropCount: 1
