@@ -8,16 +8,17 @@ TagManager:
   - Bullet
   - Gold
   - Obstacle
+  - Border_Player
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Border
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Border_Player
+  - Player
+  - Obstacle
   - 
   - 
   - 

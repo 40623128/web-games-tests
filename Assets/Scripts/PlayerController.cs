@@ -5,6 +5,13 @@ using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioSource thrustSource;   // 用來播噴射(Loop)
+    public AudioClip thrustClip;
+    [Range(0f, 1f)] public float thrustVolume = 0.6f;
+
+    private bool wasThrusting = false;
+
 
     [Header("Collect")]
     public int gold = 0;
@@ -78,6 +85,20 @@ public class PlayerController : MonoBehaviour
             Transform fp = transform.Find("FirePoint");
             if (fp != null) firePoint = fp;
         }
+
+        // ===== Thrust audio init =====
+        if (thrustSource == null)
+        {
+            // 你可以直接用玩家身上的 AudioSource
+            thrustSource = GetComponent<AudioSource>();
+            if (thrustSource == null) thrustSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        thrustSource.playOnAwake = false;
+        thrustSource.loop = true;
+        thrustSource.clip = thrustClip;
+        thrustSource.volume = thrustVolume;
+
     }
 
     void Update()
@@ -88,6 +109,11 @@ public class PlayerController : MonoBehaviour
         if (Time.timeScale == 0f)
         {
             if (boosterFlame != null) boosterFlame.SetActive(false);
+
+            if (thrustSource != null && thrustSource.isPlaying)
+                thrustSource.Stop();
+
+            wasThrusting = false;
             return;
         }
 
@@ -117,20 +143,40 @@ public class PlayerController : MonoBehaviour
             transform.up = direction;
 
         // 2) 按住左鍵時持續推進
-        if (Mouse.current.leftButton.isPressed)
+        bool thrusting = Mouse.current.leftButton.isPressed;
+
+        if (thrusting)
         {
-            // 持續施力（每幀推）
             rb.AddForce(direction * thrustForce, ForceMode2D.Force);
 
-            // 限速
             if (rb.linearVelocity.magnitude > maxSpeed)
                 rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
 
-            boosterFlame.SetActive(true);
+            if (boosterFlame != null) boosterFlame.SetActive(true);
+
+            // ===== play thrust sound (loop) =====
+            if (!wasThrusting)
+            {
+                if (thrustSource != null && thrustClip != null)
+                {
+                    thrustSource.volume = thrustVolume;
+                    if (thrustSource.clip != thrustClip) thrustSource.clip = thrustClip;
+                    thrustSource.Play();
+                }
+                wasThrusting = true;
+            }
         }
         else
         {
-            boosterFlame.SetActive(false);
+            if (boosterFlame != null) boosterFlame.SetActive(false);
+
+            // ===== stop thrust sound =====
+            if (wasThrusting)
+            {
+                if (thrustSource != null && thrustSource.isPlaying)
+                    thrustSource.Stop();
+                wasThrusting = false;
+            }
         }
     }
 
@@ -223,6 +269,8 @@ public class PlayerController : MonoBehaviour
     {
         IsAlive = false;
         Destroy(gameObject);
+        if (thrustSource != null && thrustSource.isPlaying)
+            thrustSource.Stop();
 
         if (explosionEffect != null)
             Instantiate(explosionEffect, transform.position, transform.rotation);
