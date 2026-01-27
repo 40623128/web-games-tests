@@ -142,10 +142,10 @@ TextureImporter:
       name: ship_0
       rect:
         serializedVersion: 2
-        x: 109
-        y: 75
-        width: 583
-        height: 828
+        x: 101
+        y: 290
+        width: 606
+        height: 614
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
