@@ -3,13 +3,18 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
+    [Header("Difficulty (sqrt score)")]
+    public float baseInterval = 1.0f;   // 低分時的間隔
+    public float k = 0.02f;             // 根號分數的強度（越大越快）
+    public float minInterval = 0.15f;   // 最快間隔上限（避免太密）
+
+    private PlayerController pc;
+
+
     [Header("Refs")]
     public Transform bordersRoot;      // Borders 物件
     public GameObject obstaclePrefab;
     public Transform player;           // 可選：避免生成在玩家附近
-
-    [Header("Timing")]
-    public float spawnInterval = 1.5f;
 
     [Header("Spawn Lane (inside)")]
     public float laneWidth = 1.0f;     // 內側巷道寬度
@@ -21,6 +26,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void Start()
     {
+        if (player != null) pc = player.GetComponent<PlayerController>();
         innerBounds = CalculateInnerBoundsFromWalls(bordersRoot);
         StartCoroutine(SpawnLoop());
     }
@@ -29,15 +35,24 @@ public class ObstacleSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
 
-        while (player != null)   // ✅ player 被 Destroy 後會變成 null
+        while (player != null)   // player 被 Destroy 後會變成 null
         {
             SpawnOne();
-            yield return new WaitForSeconds(spawnInterval);
-        }
 
-        // 可選：確保停乾淨
-        // Debug.Log("Player destroyed, stop spawning.");
+            int score = (pc != null) ? pc.CurrentScore : 0;
+            float interval = GetIntervalByScore(score);
+
+            yield return new WaitForSeconds(interval);
+        }
     }
+    float GetIntervalByScore(int score)
+    {
+        score = Mathf.Max(0, score);
+        float s = Mathf.Sqrt(score);
+        float interval = baseInterval / (1f + k * s);
+        return Mathf.Max(minInterval, interval);
+    }
+
 
     void SpawnOne()
     {

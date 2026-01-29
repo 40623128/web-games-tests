@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -9,14 +10,11 @@ public class PlayerController : MonoBehaviour
     public AudioSource thrustSource;   // 用來播噴射(Loop)
     public AudioClip thrustClip;
     [Range(0f, 1f)] public float thrustVolume = 0.6f;
-
     private bool wasThrusting = false;
-
 
     [Header("Collect")]
     public int gold = 0;
     private Label goldText;
-
 
     [Header("Shooting")]
     public GameObject bulletPrefab;
@@ -27,6 +25,9 @@ public class PlayerController : MonoBehaviour
     public float cooldownTime = 1.5f;
     public bool holdToFire = true;
 
+    [Header("Multi Shot")]
+    public int bulletsPerShot = 1;       // 1=單發, 2=雙發(之後也可做3發)
+    public float multiShotSpacing = 0.18f; // 兩顆子彈左右間距（世界座標）
 
     private float shotTimer = 0f;
     private float cooldownTimer = 0f;
@@ -45,25 +46,35 @@ public class PlayerController : MonoBehaviour
     [Header("Bullet Upgrades")]
     public int bulletPierce = 0; // 0=不穿透，1=可穿1顆...
 
+    [Header("Health")]
+    public int maxLives = 3;
+    public int lives = 3;
+    public float invincibleTime = 1.0f;     // 受傷後無敵秒數
+    public float blinkInterval = 0.1f;      // 閃爍間隔
+    private bool invincible = false;
+    private Coroutine invincibleCo;
+
     [Header("UI")]
     public UIDocument uiDocument;
     private Label scoreText;
     private Button restartButton;
+    private Label livesText;
 
     [Header("VFX")]
     public GameObject explosionEffect;
 
     private Rigidbody2D rb;
     private Collider2D playerCol;
+    private SpriteRenderer sr;
 
     public bool IsAlive { get; private set; } = true;
     public int CurrentScore => Mathf.FloorToInt(elapsedTime * scoreMultiplier);
-
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         playerCol = GetComponent<Collider2D>();
+        sr = GetComponent<SpriteRenderer>();
 
         shotsLeft = Mathf.Max(1, shotsBeforeCooldown);
 
@@ -71,14 +82,20 @@ public class PlayerController : MonoBehaviour
         {
             scoreText = uiDocument.rootVisualElement.Q<Label>("ScoreLabel");
             restartButton = uiDocument.rootVisualElement.Q<Button>("RestartButton");
+            goldText = uiDocument.rootVisualElement.Q<Label>("GoldCount");
+            livesText = uiDocument.rootVisualElement.Q<Label>("LivesLabel"); // ✅ 新增這個 Label
+
             if (restartButton != null)
             {
                 restartButton.style.display = DisplayStyle.None;
                 restartButton.clicked += ReloadScene;
             }
         }
-        goldText = uiDocument.rootVisualElement.Q<Label>("GoldCount");
+
         UpdateGoldUI();
+
+        lives = Mathf.Clamp(lives, 1, maxLives);
+        UpdateLivesUI();
 
         if (firePoint == null)
         {
@@ -89,7 +106,6 @@ public class PlayerController : MonoBehaviour
         // ===== Thrust audio init =====
         if (thrustSource == null)
         {
-            // 你可以直接用玩家身上的 AudioSource
             thrustSource = GetComponent<AudioSource>();
             if (thrustSource == null) thrustSource = gameObject.AddComponent<AudioSource>();
         }
@@ -98,7 +114,6 @@ public class PlayerController : MonoBehaviour
         thrustSource.loop = true;
         thrustSource.clip = thrustClip;
         thrustSource.volume = thrustVolume;
-
     }
 
     void Update()
@@ -121,7 +136,6 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         HandleShooting();
     }
-
 
     void UpdateScore()
     {
@@ -180,8 +194,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
     void HandleShooting()
     {
         if (Mouse.current == null) return;
@@ -227,63 +239,135 @@ public class PlayerController : MonoBehaviour
     {
         if (bulletPrefab == null) return;
 
-        Vector3 spawnPos = (firePoint != null) ? firePoint.position : transform.position;
-        GameObject b = Instantiate(bulletPrefab, spawnPos, transform.rotation);
+        Vector3 basePos = (firePoint != null) ? firePoint.position : transform.position;
+        Vector2 forward = transform.up;     // 子彈前進方向
+        Vector2 right = transform.right;  // 用來左右偏移
 
-        Rigidbody2D brb = b.GetComponent<Rigidbody2D>();
-        if (brb != null)
-            brb.linearVelocity = (Vector2)transform.up * bulletSpeed;
+        int n = Mathf.Clamp(bulletsPerShot, 1, 10);
 
-        var bullet = b.GetComponent<Bullet>();
-        if (bullet != null)
-            bullet.pierceCount = bulletPierce;
-
-        // ✅ 避免子彈誤殺自己（即使你之後改規則也安全）
-        if (playerCol != null)
+        // n=1 => offset=0
+        // n=2 => offset=-0.5, +0.5
+        // n=3 => offset=-1, 0, +1 ...
+        for (int i = 0; i < n; i++)
         {
-            Collider2D bulletCol = b.GetComponent<Collider2D>();
-            if (bulletCol != null)
-                Physics2D.IgnoreCollision(bulletCol, playerCol, true);
+            float t = (n == 1) ? 0f : (i - (n - 1) * 0.5f);  // 置中分布
+            Vector3 spawnPos = basePos + (Vector3)(right * (t * multiShotSpacing));
+
+            GameObject b = Instantiate(bulletPrefab, spawnPos, transform.rotation);
+
+            Rigidbody2D brb = b.GetComponent<Rigidbody2D>();
+            if (brb != null)
+                brb.linearVelocity = forward * bulletSpeed;
+
+            var bullet = b.GetComponent<Bullet>();
+            if (bullet != null)
+                bullet.pierceCount = bulletPierce;
+
+            // ✅ 避免子彈誤殺自己
+            if (playerCol != null)
+            {
+                Collider2D bulletCol = b.GetComponent<Collider2D>();
+                if (bulletCol != null)
+                    Physics2D.IgnoreCollision(bulletCol, playerCol, true);
+            }
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+
+    // =========================
+    // Damage / Lives
+    // =========================
+    public void TakeDamage(int dmg = 1)
     {
-        // ✅ 撞到隕石或邊界就死
-        if (collision.collider.CompareTag("Obstacle") || collision.collider.CompareTag("Border"))
+        if (!IsAlive) return;
+        if (invincible) return;
+
+        lives -= dmg;
+        if (lives < 0) lives = 0;
+        UpdateLivesUI();
+
+        if (lives <= 0)
         {
             Die();
+            return;
+        }
+
+        // 進入無敵 + 閃爍
+        if (invincibleCo != null) StopCoroutine(invincibleCo);
+        invincibleCo = StartCoroutine(InvincibleCoroutine(invincibleTime));
+    }
+
+    private IEnumerator InvincibleCoroutine(float t)
+    {
+        invincible = true;
+
+        float elapsed = 0f;
+        while (elapsed < t)
+        {
+            elapsed += blinkInterval;
+
+            if (sr != null) sr.enabled = !sr.enabled;
+            yield return new WaitForSeconds(blinkInterval);
+        }
+
+        if (sr != null) sr.enabled = true;
+        invincible = false;
+        invincibleCo = null;
+    }
+
+    void UpdateLivesUI()
+    {
+        if (livesText != null)
+            livesText.text = "Lives: " + lives;
+    }
+
+    // =========================
+    // Collision => TakeDamage
+    // =========================
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Obstacle") || collision.collider.CompareTag("Border"))
+        {
+            TakeDamage(1);
         }
     }
 
-    // 如果你邊界用 Trigger，這個也一起支援
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Obstacle") || other.CompareTag("Border"))
         {
-            Die();
+            TakeDamage(1);
         }
     }
 
     void Die()
     {
         IsAlive = false;
-        Destroy(gameObject);
+
         if (thrustSource != null && thrustSource.isPlaying)
             thrustSource.Stop();
+
+        if (boosterFlame != null) boosterFlame.SetActive(false);
 
         if (explosionEffect != null)
             Instantiate(explosionEffect, transform.position, transform.rotation);
 
         if (restartButton != null)
             restartButton.style.display = DisplayStyle.Flex;
+
+        // ✅ 想保留屍體/避免再撞：關掉碰撞與顯示即可（比 Destroy 更穩）
+        if (playerCol != null) playerCol.enabled = false;
+        if (sr != null) sr.enabled = false;
+
+        // 如果你真的想直接刪掉玩家，改成 Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-    
+
     public void AddGold(int amount)
     {
         gold += amount;
@@ -295,12 +379,13 @@ public class PlayerController : MonoBehaviour
         if (goldText != null)
             goldText.text = "Gold: " + gold;
     }
+
     public void ApplyUpgrade(UpgradeType type, float value)
     {
         switch (type)
         {
             case UpgradeType.ThrustUp:
-                thrustForce *= (1f + value); // value=0.25 => +25%
+                thrustForce *= (1f + value);
                 break;
 
             case UpgradeType.MaxSpeedUp:
@@ -312,24 +397,27 @@ public class PlayerController : MonoBehaviour
                 break;
 
             case UpgradeType.FireRateUp:
-                // value 是負數：shotInterval 變小 => 更快
                 shotInterval = Mathf.Max(0.03f, shotInterval * value);
                 break;
 
             case UpgradeType.MagSizeUp:
                 shotsBeforeCooldown += Mathf.RoundToInt(value);
                 shotsBeforeCooldown = Mathf.Max(1, shotsBeforeCooldown);
-                // 你也可以選擇立刻補滿：
-                // shotsLeft = shotsBeforeCooldown;
                 break;
 
             case UpgradeType.CooldownDown:
-                cooldownTime = Mathf.Max(0.1f, cooldownTime * value); // value=-0.2 => 冷卻變短
+                cooldownTime = Mathf.Max(0.1f, cooldownTime * value);
                 break;
 
             case UpgradeType.PierceUp:
-                bulletPierce += Mathf.RoundToInt(value);   // value=1 => 穿透+1
-                bulletPierce = Mathf.Clamp(bulletPierce, 0, 50); // 防呆上限
+                bulletPierce += Mathf.RoundToInt(value);
+                bulletPierce = Mathf.Clamp(bulletPierce, 0, 50);
+                break;
+            case UpgradeType.LifeUp:
+                AddLifeAndMax(Mathf.RoundToInt(value));   // value=1 => +1 命
+                break;
+            case UpgradeType.MultiShot:
+                bulletsPerShot = Mathf.Clamp(bulletsPerShot + Mathf.RoundToInt(value), 1, 5);
                 break;
         }
 
@@ -338,7 +426,15 @@ public class PlayerController : MonoBehaviour
 
     public void RefreshGoldUI()
     {
-        goldText.text = "Gold:" + gold;
+        if (goldText != null)
+            goldText.text = "Gold:" + gold;
     }
 
+
+    public void AddLifeAndMax(int amount = 1)
+    {
+        maxLives += amount;
+        lives = Mathf.Clamp(lives + amount, 0, maxLives);
+        UpdateLivesUI();
+    }
 }

@@ -7,5 +7,7 @@ public enum UpgradeType
     MagSizeUp,       // 彈匣容量
     CooldownDown,    // 冷卻時間變短
     MagnetRangeUp,   // 吸金範圍
-    PierceUp,
+    PierceUp,       // 穿透
+    LifeUp,         // 生命
+    MultiShot,     // 多重射擊
 }

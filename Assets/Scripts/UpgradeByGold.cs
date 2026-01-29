@@ -89,13 +89,17 @@ public class UpgradeByGold : MonoBehaviour
     {
         options = new List<Option>
         {
-            new Option(UpgradeType.ThrustUp,      0.20f, "Thrust +20%"),
-            new Option(UpgradeType.MaxSpeedUp,    0.20f, "Max Speed +20%"),
-            new Option(UpgradeType.BulletSpeedUp, 0.20f, "Bullet Speed +20%"),
-            new Option(UpgradeType.FireRateUp,   0.95f, "Firing Rate +5%"),
-            new Option(UpgradeType.MagSizeUp,      1f,   "Capacity +1"),
-            new Option(UpgradeType.CooldownDown, 0.9f,  "Reload speed +10%"),
-            new Option(UpgradeType.PierceUp, 1f, "Pierce +1"),
+            new Option(UpgradeType.ThrustUp,        0.20f,  "Thrust +20%",       1.0f),
+            new Option(UpgradeType.MaxSpeedUp,      0.20f,  "Max Speed +20%",    1.0f ),
+
+            new Option(UpgradeType.BulletSpeedUp,   0.20f,  "Bullet Speed +20%", 1.0f ),
+            new Option(UpgradeType.FireRateUp,      0.95f,  "Firing Rate +5%",   1.0f),
+            new Option(UpgradeType.CooldownDown,    0.9f,   "Reload speed +10%", 1.0f),
+
+            new Option(UpgradeType.LifeUp,          1f,     "Life +1",           0.1f),
+            new Option(UpgradeType.PierceUp,        1f,     "Pierce +1",         0.1f),
+            new Option(UpgradeType.MagSizeUp,       1f,     "Ammo Capacity +1",  0.1f),
+            new Option(UpgradeType.MultiShot,       1f,     "MultiShot +1",      0.1f),
         };
     }
 
@@ -112,7 +116,7 @@ public class UpgradeByGold : MonoBehaviour
 
         group.style.display = DisplayStyle.Flex;
 
-        var picks = Pick3(options);
+        var picks = Pick3Weighted(options);
 
         SetupButton(b1, picks[0]);
         SetupButton(b2, picks[1]);
@@ -146,25 +150,59 @@ public class UpgradeByGold : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    static List<Option> Pick3(List<Option> src)
+    static List<Option> Pick3Weighted(List<Option> src)
     {
-        var chosen = new HashSet<int>();
-        while (chosen.Count < 3) chosen.Add(UnityEngine.Random.Range(0, src.Count));
-
+        // 複製一份候選（不放回抽樣用）
+        var pool = new List<Option>(src);
         var res = new List<Option>(3);
-        foreach (var i in chosen) res.Add(src[i]);
+
+        for (int pick = 0; pick < 3 && pool.Count > 0; pick++)
+        {
+            float total = 0f;
+            for (int i = 0; i < pool.Count; i++)
+                total += Mathf.Max(0f, pool[i].weight);
+
+            // 全部權重為 0 -> 退回等機率抽
+            if (total <= 0f)
+            {
+                int idx = UnityEngine.Random.Range(0, pool.Count);
+                res.Add(pool[idx]);
+                pool.RemoveAt(idx);
+                continue;
+            }
+
+            float r = UnityEngine.Random.value * total;
+            float acc = 0f;
+            int chosen = pool.Count - 1;
+
+            for (int i = 0; i < pool.Count; i++)
+            {
+                acc += Mathf.Max(0f, pool[i].weight);
+                if (r <= acc)
+                {
+                    chosen = i;
+                    break;
+                }
+            }
+
+            res.Add(pool[chosen]);
+            pool.RemoveAt(chosen); // ✅ 不放回：移除已選
+        }
+
         return res;
     }
+
 
     struct Option
     {
         public UpgradeType type;
         public float value;
         public string text;
+        public float weight;   // ✅ 權重（機率用）
 
-        public Option(UpgradeType t, float v, string s)
+        public Option(UpgradeType t, float v, string s, float w)
         {
-            type = t; value = v; text = s;
+            type = t; value = v; text = s; weight = Mathf.Max(0f, w);
         }
     }
 }
