@@ -857,8 +857,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a99e657615d08429309ead1e09cdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BGMManager
-  bgmClip: {fileID: 8300000, guid: 23d10ea0d1748b7468cc01831f35d2af, type: 3}
-  volume: 0.1
+  bgmClip: {fileID: 8300000, guid: 709a668060836924794b08eb488609ae, type: 3}
+  volume: 0.337
 --- !u!4 &1546873042
 Transform:
   m_ObjectHideFlags: 0
