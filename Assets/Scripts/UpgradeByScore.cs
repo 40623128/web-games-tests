@@ -25,8 +25,8 @@ public class UpgradeByScore : MonoBehaviour
 
     void Start()
     {
-        if (uiDocument == null) uiDocument = FindObjectOfType<UIDocument>();
-        if (player == null) player = FindObjectOfType<PlayerController>();
+        if (uiDocument == null) uiDocument = FindFirstObjectByType<UIDocument>();
+        if (player == null) player = FindFirstObjectByType<PlayerController>();
 
         var root = uiDocument.rootVisualElement;
 

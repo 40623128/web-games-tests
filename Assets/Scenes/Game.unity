@@ -459,7 +459,6 @@ MonoBehaviour:
   uiDocument: {fileID: 1605148478}
   player: {fileID: 1597998165}
   firstUpgradeGold: 1
-  upgradeEveryGold: 1
   spendGoldWhenUpgrade: 0
   incrementStart: 0
   incrementStep: 1
@@ -858,7 +857,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BGMManager
   bgmClip: {fileID: 8300000, guid: 709a668060836924794b08eb488609ae, type: 3}
-  volume: 0.337
+  bgmVolume: 0.6
+  sfxVolume: 0.8
+  sfxPitchRange: {x: 0.9, y: 1.1}
+  sfxShoot: {fileID: 8300000, guid: d41818079a9ac664a8a0b4bf8e13fbf8, type: 3}
+  sfxAsteroidHitAsteroid: {fileID: 8300000, guid: 299c07f5ed02ab6449d13e480b45daad, type: 3}
+  sfxAsteroidHitPlayer: {fileID: 0}
+  sfxAsteroidHitByBullet: {fileID: 8300000, guid: d7be1f538b0eda04b9b5fb8bdebb68b7, type: 3}
+  minIntervalPerKey: 0.05
+  minIntervalGlobal: 0.01
+  upgradeOpenClip: {fileID: 0}
+  upgradeChooseClip: {fileID: 8300000, guid: a724be617512eb04d9ec36b012206fcf, type: 3}
 --- !u!4 &1546873042
 Transform:
   m_ObjectHideFlags: 0
@@ -1735,7 +1744,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4874442696825571660, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: m_Constraints
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4874442696825571660, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: m_Interpolate

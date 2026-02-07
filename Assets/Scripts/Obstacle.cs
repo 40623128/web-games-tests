@@ -32,6 +32,12 @@ public class Obstacle : MonoBehaviour
     [Header("Spin")]
     public float maxSpinSpeed = 10f;
 
+    [Header("SFX")]
+    public float collisionSfxCooldown = 0.08f; // 同顆隕石碰撞音最短間隔
+    public float minImpactToPlay = 0.6f;       // 低於這個撞擊強度不播（避免輕微抖動一直播）
+    float _lastCollisionSfxTime = -999f;
+
+
     private Rigidbody2D rb;
     private bool isDead = false;
 
@@ -76,7 +82,7 @@ public class Obstacle : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-
+        BGMManager.Instance?.PlayAsteroidHitByBullet();
         PlayDestroyEffect(hitPoint);
         DropGold();
         Destroy(gameObject);
@@ -87,6 +93,35 @@ public class Obstacle : MonoBehaviour
         if (isDead) return;
         if (collision.collider.CompareTag("Bullet")) return;
 
+        // ===== SFX：冷卻 + 強度判斷 =====
+        float now = Time.unscaledTime;
+        if (now - _lastCollisionSfxTime >= collisionSfxCooldown)
+        {
+            // 2D 碰撞強度：relativeVelocity 大小很常用
+            float impact = collision.relativeVelocity.magnitude;
+
+            if (impact >= minImpactToPlay)
+            {
+                if (collision.collider.CompareTag("Player"))
+                {
+                    BGMManager.Instance?.PlayAsteroidHitPlayer();     // ✅ 隕石撞玩家
+                    _lastCollisionSfxTime = now;
+                }
+                else if (collision.collider.CompareTag("Obstacle"))
+                {
+                    BGMManager.Instance?.PlayAsteroidHitAsteroid();   // ✅ 隕石撞隕石
+                    _lastCollisionSfxTime = now;
+                }
+                else
+                {
+                    // 其他（牆、Border 等）你要不要播碰撞音都行
+                    // 例如：BGMManager.Instance?.PlayAsteroidHitAsteroid();
+                    // _lastCollisionSfxTime = now;
+                }
+            }
+        }
+
+        // ===== 你的 bounce effect =====
         if (bounceEffectPrefab != null)
         {
             Vector2 contactPoint = collision.GetContact(0).point;

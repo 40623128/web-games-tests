@@ -1,65 +1,319 @@
-!doctype html
-html lang=zh-Hant
-head
-  meta charset=utf-8 
-  meta name=viewport content=width=device-width,initial-scale=1 
-  titleProject Versionstitle
-  meta name=description content=Version index for GitHub Pages 
-  style
-    root { color-scheme light dark; }
-    body { margin 0; font-family system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans TC, sans-serif; }
-    .wrap { max-width 900px; margin 0 auto; padding 32px 18px; }
-    header { display flex; align-items baseline; gap 12px; flex-wrap wrap; }
-    h1 { margin 0; font-size 28px; }
-    .sub { opacity .7; font-size 14px; }
-    .card {
-      margin-top 18px;
-      border 1px solid rgba(127,127,127,.25);
-      border-radius 14px;
-      padding 16px;
-      background rgba(127,127,127,.06);
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Project 版本連結列表</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: rgba(255, 255, 255, 0.08);
+      --card2: rgba(255, 255, 255, 0.06);
+      --text: rgba(255, 255, 255, 0.92);
+      --muted: rgba(255, 255, 255, 0.65);
+      --border: rgba(255, 255, 255, 0.14);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
-    ul { list-style none; padding 0; margin 0; display grid; gap 10px; }
-    a.version {
-      display flex;
-      justify-content space-between;
-      gap 12px;
-      align-items center;
-      padding 12px 14px;
-      border-radius 12px;
-      border 1px solid rgba(127,127,127,.25);
-      text-decoration none;
-      color inherit;
-      background rgba(127,127,127,.08);
-      transition transform .08s ease, background .08s ease;
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(99,102,241,0.35), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(16,185,129,0.28), transparent 55%),
+        radial-gradient(900px 600px at 50% 95%, rgba(236,72,153,0.22), transparent 55%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
     }
-    a.versionhover { transform translateY(-1px); background rgba(127,127,127,.13); }
-    .tag { font-family ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-           font-size 12px; opacity .75; }
-    footer { margin-top 22px; font-size 12px; opacity .7; }
-  style
-head
-body
-  div class=wrap
-    header
-      h1版本列表h1
-      div class=sub選擇要開啟的版本div
-    header
 
-    div class=card
-      ul
-        li
-          a class=version href=.V0.0.1index.html
-            spanV0.0.1span
-            span class=tagV0.0.1index.htmlspan
-          a
-        li
-      ul
-    div
+    .wrap {
+      width: min(860px, 100%);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
 
-    footer
-      divTip：若你之後新增版本資料夾（例如 V0.0.2），只要在這裡再加一個連結即可。div
-    footer
-  div
-body
-html
+    header {
+      padding: 22px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.9);
+      box-shadow: 0 0 14px rgba(16,185,129,0.55);
+    }
+
+    /* ===== 區塊（最新/其他版本） ===== */
+    .section {
+      padding: 16px 18px 6px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .section-desc {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+      margin: 4px 0 0;
+    }
+
+    .list {
+      padding: 14px 16px 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    a.item {
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      display: grid;
+      gap: 6px;
+      min-height: 74px;
+    }
+
+    a.item:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.095);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .ver {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .url {
+      font-size: 12px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 最新版本卡片稍微更醒目 */
+    .item.latest {
+      border-color: rgba(16,185,129,0.45);
+      background: rgba(16,185,129,0.10);
+    }
+    .item.latest:hover {
+      border-color: rgba(16,185,129,0.70);
+      background: rgba(16,185,129,0.14);
+    }
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(16,185,129,0.55);
+      background: rgba(16,185,129,0.14);
+      color: rgba(255,255,255,0.92);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    footer {
+      padding: 12px 18px 18px;
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ===== 致謝區 ===== */
+    .thanks {
+      padding: 16px 18px 20px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+    .thanks h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.9);
+    }
+    .thanks p {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>My Project 版本連結</h1>
+        <p class="hint">點擊即可開啟對應版本</p>
+      </div>
+      <div class="badge" title="快速入口">
+        <span class="dot"></span>
+        <span>40623128.github.io</span>
+      </div>
+    </header>
+
+    <!-- ===== 最新版本 ===== -->
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">最新版本</h2>
+        <p class="section-desc">建議優先使用最新版本 更新日期:20260208</p>
+      </div>
+      <div class="divider"></div>
+
+      <main class="list">
+        <a class="item latest" href="https://40623128.github.io/web-games-tests/V0.0.7" target="_blank" rel="noopener">
+          <div class="ver">V0.0.7 <span class="pill">Latest</span></div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.7</div>
+        </a>
+      </main>
+    </section>
+
+    <!-- ===== 其他版本 ===== -->
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">其他版本</h2>
+        <p class="section-desc">歷史版本</p>
+      </div>
+      <div class="divider"></div>
+
+      <main class="list">
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.6.3" target="_blank" rel="noopener">
+          <div class="ver">V0.0.6.3 (BGM Test3)</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.6.3</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.6.2" target="_blank" rel="noopener">
+          <div class="ver">V0.0.6.2 (BGM Test2)</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.6.2</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.6.1" target="_blank" rel="noopener">
+          <div class="ver">V0.0.6.1 (BGM Test1)</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.6.1</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.6" target="_blank" rel="noopener">
+          <div class="ver">V0.0.6</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.6</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.5" target="_blank" rel="noopener">
+          <div class="ver">V0.0.5</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.5</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.4.2" target="_blank" rel="noopener">
+          <div class="ver">V0.0.4.2</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.4.2</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.4.1" target="_blank" rel="noopener">
+          <div class="ver">V0.0.4.1</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.4.1</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.4" target="_blank" rel="noopener">
+          <div class="ver">V0.0.4</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.4</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.3" target="_blank" rel="noopener">
+          <div class="ver">V0.0.3</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.3</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.2" target="_blank" rel="noopener">
+          <div class="ver">V0.0.2</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.2</div>
+        </a>
+
+        <a class="item" href="https://40623128.github.io/web-games-tests/V0.0.1" target="_blank" rel="noopener">
+          <div class="ver">V0.0.1</div>
+          <div class="url">https://40623128.github.io/web-games-tests/V0.0.1</div>
+        </a>
+      </main>
+    </section>
+
+    <footer>
+      <div>提示：會在新分頁開啟。</div>
+    </footer>
+
+    <!-- 致謝欄 -->
+    <section class="thanks">
+	  <h2>特別感謝</h2>
+      <p>美術: 橘貓。</p>
+	  <p>音效: 橘貓, The_End。</p>
+	  <p>遊戲功能建議: Man Bro, The_End, 小佛。</p>
+	  <p>如果有任何幫助過我的人沒有被寫進來，請一定要讓我知道。</p>
+	  <p>另外也感謝其他所有參與測試與回饋的玩家。</p>
+	  <p>若有問題或建議，請一定要告訴我。</p>
+    </section>
+  </div>
+</body>
+</html>

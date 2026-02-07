@@ -254,6 +254,7 @@ public class PlayerController : MonoBehaviour
             Vector3 spawnPos = basePos + (Vector3)(right * (t * multiShotSpacing));
 
             GameObject b = Instantiate(bulletPrefab, spawnPos, transform.rotation);
+            BGMManager.Instance?.PlayShoot();
 
             Rigidbody2D brb = b.GetComponent<Rigidbody2D>();
             if (brb != null)
@@ -318,7 +319,7 @@ public class PlayerController : MonoBehaviour
     void UpdateLivesUI()
     {
         if (livesText != null)
-            livesText.text = "Lives: " + lives;
+            livesText.text = ": " + lives;
     }
 
     // =========================
@@ -377,7 +378,7 @@ public class PlayerController : MonoBehaviour
     void UpdateGoldUI()
     {
         if (goldText != null)
-            goldText.text = "Gold: " + gold;
+            goldText.text = ": " + gold;
     }
 
     public void ApplyUpgrade(UpgradeType type, float value)
@@ -427,7 +428,7 @@ public class PlayerController : MonoBehaviour
     public void RefreshGoldUI()
     {
         if (goldText != null)
-            goldText.text = "Gold:" + gold;
+            goldText.text = ":" + gold;
     }
 
 
