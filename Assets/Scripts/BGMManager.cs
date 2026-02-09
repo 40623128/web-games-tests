@@ -17,14 +17,28 @@ public class BGMManager : MonoBehaviour
     public AudioClip sfxAsteroidHitAsteroid;
     public AudioClip sfxAsteroidHitPlayer;
     public AudioClip sfxAsteroidHitByBullet;
+    public AudioClip sfxPlayerDeath;
+
+    // ✅ 每個音效各自音量（倍率）
+    [Header("Per-SFX Volume (0~1, multiplied by SFX Master)")]
+    [Range(0f, 1f)] public float volShoot = 1.0f;
+    [Range(0f, 1f)] public float volAsteroidHitAsteroid = 1.0f;
+    [Range(0f, 1f)] public float volAsteroidHitPlayer = 1.0f;
+    [Range(0f, 1f)] public float volAsteroidHitByBullet = 1.0f;
+    [Range(0f, 1f)] public float volPlayerDeath = 1.0f;
 
     [Header("SFX Limiter")]
-    public float minIntervalPerKey = 0.05f;   // 同一種音效最短間隔（防爆音）
-    public float minIntervalGlobal = 0.01f;   // 全域最短間隔
+    public float minIntervalPerKey = 0.05f;
+    public float minIntervalGlobal = 0.01f;
 
     [Header("Upgrade SFX")]
     public AudioClip upgradeOpenClip;
     public AudioClip upgradeChooseClip;
+
+    // ✅ Upgrade 也給各自音量（可要可不要，但你說每個都要，就一起加）
+    [Header("Upgrade Volume (0~1)")]
+    [Range(0f, 1f)] public float volUpgradeOpen = 1.0f;
+    [Range(0f, 1f)] public float volUpgradeChoose = 1.0f;
 
     AudioSource bgmSrc;
     AudioSource sfxSrc;
@@ -39,7 +53,6 @@ public class BGMManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // BGM source
         bgmSrc = GetComponent<AudioSource>();
         if (bgmSrc == null) bgmSrc = gameObject.AddComponent<AudioSource>();
         bgmSrc.playOnAwake = false;
@@ -47,11 +60,10 @@ public class BGMManager : MonoBehaviour
         bgmSrc.clip = bgmClip;
         bgmSrc.volume = bgmVolume;
 
-        // SFX source (獨立)
         sfxSrc = gameObject.AddComponent<AudioSource>();
         sfxSrc.playOnAwake = false;
         sfxSrc.loop = false;
-        sfxSrc.spatialBlend = 0f; // 2D
+        sfxSrc.spatialBlend = 0f;
         sfxSrc.volume = sfxVolume;
     }
 
@@ -66,7 +78,6 @@ public class BGMManager : MonoBehaviour
         bgmVolume = Mathf.Clamp01(v);
         if (bgmSrc != null) bgmSrc.volume = bgmVolume;
     }
-
     public void StopBGM() { if (bgmSrc != null) bgmSrc.Stop(); }
     public void PlayBGM() { if (bgmSrc != null && !bgmSrc.isPlaying) bgmSrc.Play(); }
 
@@ -77,42 +88,43 @@ public class BGMManager : MonoBehaviour
         if (sfxSrc != null) sfxSrc.volume = sfxVolume;
     }
 
-    void PlaySfx(AudioClip clip, int key, float volumeMul = 1f)
+    void PlaySfx(AudioClip clip, int key, float perSfxMul = 1f)
     {
         if (clip == null || sfxSrc == null) return;
 
         float now = Time.unscaledTime;
 
-        // global limiter
         if (now - _lastGlobalTime < minIntervalGlobal) return;
         _lastGlobalTime = now;
 
-        // per-key limiter
         if (_lastKeyTime.TryGetValue(key, out float t) && now - t < minIntervalPerKey) return;
         _lastKeyTime[key] = now;
 
         float oldPitch = sfxSrc.pitch;
         sfxSrc.pitch = Random.Range(sfxPitchRange.x, sfxPitchRange.y);
-        sfxSrc.PlayOneShot(clip, sfxVolume * volumeMul);
+
+        // ✅ 這裡就是：Master * 每個音效倍率
+        sfxSrc.PlayOneShot(clip, sfxVolume * Mathf.Clamp01(perSfxMul));
+
         sfxSrc.pitch = oldPitch;
     }
+
     public void PlayUpgradeOpen()
     {
         if (sfxSrc == null || upgradeOpenClip == null) return;
-        sfxSrc.PlayOneShot(upgradeOpenClip, sfxVolume);
+        sfxSrc.PlayOneShot(upgradeOpenClip, sfxVolume * Mathf.Clamp01(volUpgradeOpen));
     }
 
     public void PlayUpgradeChoose()
     {
         if (sfxSrc == null || upgradeChooseClip == null) return;
-        sfxSrc.PlayOneShot(upgradeChooseClip, sfxVolume);
+        sfxSrc.PlayOneShot(upgradeChooseClip, sfxVolume * Mathf.Clamp01(volUpgradeChoose));
     }
 
-    // 下面是你要用的 API（呼叫就播）
-    public void PlayShoot() => PlaySfx(sfxShoot, 1);
-    public void PlayAsteroidHitAsteroid() => PlaySfx(sfxAsteroidHitAsteroid, 2);
-    public void PlayAsteroidHitPlayer() => PlaySfx(sfxAsteroidHitPlayer, 3);
-    public void PlayAsteroidHitByBullet() => PlaySfx(sfxAsteroidHitByBullet, 4);
-
-
+    // ✅ 各自帶自己的倍率
+    public void PlayShoot() => PlaySfx(sfxShoot, 1, volShoot);
+    public void PlayAsteroidHitAsteroid() => PlaySfx(sfxAsteroidHitAsteroid, 2, volAsteroidHitAsteroid);
+    public void PlayAsteroidHitPlayer() => PlaySfx(sfxAsteroidHitPlayer, 3, volAsteroidHitPlayer);
+    public void PlayAsteroidHitByBullet() => PlaySfx(sfxAsteroidHitByBullet, 4, volAsteroidHitByBullet);
+    public void PlayPlayerDeath() => PlaySfx(sfxPlayerDeath, 5, volPlayerDeath);
 }

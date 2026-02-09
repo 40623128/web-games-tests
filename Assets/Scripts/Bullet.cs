@@ -12,6 +12,10 @@ public class Bullet : MonoBehaviour
     [Header("Piercing")]
     public int pierceCount = 0;          // ✅ 可穿透幾顆隕石（0=不穿透，1=可穿1顆...）
 
+    [Header("VFX")]
+    public GameObject vfxHitAsteroid;
+    public float vfxHitScale = 1.0f;
+
     private int pierceLeft;
     private Bounds innerBounds;
     private bool hasBounds = false;
@@ -75,11 +79,20 @@ public class Bullet : MonoBehaviour
         if (hitIds.Contains(id)) return;
         hitIds.Add(id);
 
-        // ✅ 讓隕石自己處理：爆炸 + 掉金 + 消失
+        // ✅ 撞擊點（在 collider 表面最接近子彈的位置）
+        Vector2 hitPoint = other.ClosestPoint(transform.position);
+
+        // ✅ 在撞擊點生成特效
+        if (vfxHitAsteroid != null)
+        {
+            var fx = Instantiate(vfxHitAsteroid, hitPoint, Quaternion.identity);
+            fx.transform.localScale *= vfxHitScale;
+        }
+
+        // ✅ 讓隕石自己處理：爆炸 + 掉金 + 消失（把撞擊點傳進去）
         var obs = other.GetComponentInParent<Obstacle>();
         if (obs != null)
         {
-            Vector2 hitPoint = other.ClosestPoint(transform.position);
             obs.HitByBullet(hitPoint);
         }
 

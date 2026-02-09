@@ -61,7 +61,14 @@ public class PlayerController : MonoBehaviour
     private Label livesText;
 
     [Header("VFX")]
-    public GameObject explosionEffect;
+    public GameObject vfxPlayerHurt;   // ✅ 飛船受傷特效
+    public GameObject vfxPlayerDeath;  // ✅ 飛船死亡特效
+    public GameObject explosionEffect; // (可選) 你原本的爆炸
+
+    public float vfxHurtScale = 1.0f;
+    public float vfxDeathScale = 1.6f;
+
+
 
     private Rigidbody2D rb;
     private Collider2D playerCol;
@@ -287,6 +294,12 @@ public class PlayerController : MonoBehaviour
         if (lives < 0) lives = 0;
         UpdateLivesUI();
 
+        // 受傷貓掌（小
+        if (lives > 0 && vfxPlayerHurt != null)
+        {
+            var go = Instantiate(vfxPlayerHurt, transform.position, Quaternion.identity);
+            go.transform.localScale *= vfxHurtScale;
+        }
         if (lives <= 0)
         {
             Die();
@@ -344,7 +357,7 @@ public class PlayerController : MonoBehaviour
     void Die()
     {
         IsAlive = false;
-
+        BGMManager.Instance?.PlayPlayerDeath();
         if (thrustSource != null && thrustSource.isPlaying)
             thrustSource.Stop();
 
@@ -352,13 +365,21 @@ public class PlayerController : MonoBehaviour
 
         if (explosionEffect != null)
             Instantiate(explosionEffect, transform.position, transform.rotation);
+        
+        // ✅ 死亡特效（優先用 vfxPlayerDeath，沒有就用原本 explosionEffect）
+        GameObject deathFx = vfxPlayerDeath != null ? vfxPlayerDeath : explosionEffect;
+        if (deathFx != null)
+        {
+            var go = Instantiate(deathFx, transform.position, Quaternion.identity);
+            go.transform.localScale *= vfxDeathScale;
+        }
 
         if (restartButton != null)
             restartButton.style.display = DisplayStyle.Flex;
 
         // ✅ 想保留屍體/避免再撞：關掉碰撞與顯示即可（比 Destroy 更穩）
-        if (playerCol != null) playerCol.enabled = false;
-        if (sr != null) sr.enabled = false;
+        //if (playerCol != null) playerCol.enabled = false;
+        //if (sr != null) sr.enabled = false;
 
         // 如果你真的想直接刪掉玩家，改成 Destroy(gameObject);
         Destroy(gameObject);

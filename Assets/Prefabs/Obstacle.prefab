@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -712631045867808456, guid: b670ab75dde984907b8570040daa08c5, type: 3}
+  m_Sprite: {fileID: -2346302928887187388, guid: 1c375735254231647aab43565d101f01, type: 3}
   m_Color: {r: 0.9528302, g: 0.7198106, b: 0.38203096, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -159,7 +159,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 0.8828125}
+    oldSize: {x: 0.52, y: 0.63}
     newSize: {x: 1, y: 0.8828125}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -201,3 +201,5 @@ MonoBehaviour:
   destroyEffectPrefab: {fileID: 3386894873801615580, guid: c942d6839ed695841a5975bafa8c0e4d, type: 3}
   effectLife: 1
   maxSpinSpeed: 10
+  collisionSfxCooldown: 0.08
+  minImpactToPlay: 0.6

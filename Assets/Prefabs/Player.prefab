@@ -430,7 +430,11 @@ MonoBehaviour:
   invincibleTime: 1
   blinkInterval: 0.5
   uiDocument: {fileID: 0}
+  vfxPlayerHurt: {fileID: 1826459091912067574, guid: 3e51cd6cd87cbd34bba0aa54117fef0b, type: 3}
+  vfxPlayerDeath: {fileID: 1826459091912067574, guid: 1c1ef93213cb6e14581c1dfb2fd787fb, type: 3}
   explosionEffect: {fileID: 5130939182950275616, guid: 10f783a29861ab44dae459770cd99b5e, type: 3}
+  vfxHurtScale: 1
+  vfxDeathScale: 1.6
 --- !u!1 &7183478639920074669
 GameObject:
   m_ObjectHideFlags: 0

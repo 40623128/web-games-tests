@@ -864,10 +864,18 @@ MonoBehaviour:
   sfxAsteroidHitAsteroid: {fileID: 8300000, guid: 299c07f5ed02ab6449d13e480b45daad, type: 3}
   sfxAsteroidHitPlayer: {fileID: 0}
   sfxAsteroidHitByBullet: {fileID: 8300000, guid: d7be1f538b0eda04b9b5fb8bdebb68b7, type: 3}
+  sfxPlayerDeath: {fileID: 8300000, guid: 2ebb54b9ce5972c49a6e4e7b9c0a4828, type: 3}
+  volShoot: 1
+  volAsteroidHitAsteroid: 1
+  volAsteroidHitPlayer: 1
+  volAsteroidHitByBullet: 1
+  volPlayerDeath: 0.37
   minIntervalPerKey: 0.05
   minIntervalGlobal: 0.01
   upgradeOpenClip: {fileID: 0}
   upgradeChooseClip: {fileID: 8300000, guid: a724be617512eb04d9ec36b012206fcf, type: 3}
+  volUpgradeOpen: 1
+  volUpgradeChoose: 1
 --- !u!4 &1546873042
 Transform:
   m_ObjectHideFlags: 0
@@ -1734,6 +1742,10 @@ PrefabInstance:
       propertyPath: bulletsPerShot
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2306452877399661207, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
+      propertyPath: pawStampEffect
+      value: 
+      objectReference: {fileID: 1826459091912067574, guid: 0ffbde2fc325b0946b9c94e4849d7667, type: 3}
     - target: {fileID: 2306452877399661207, guid: a86fe9f5f3350b0488bc07ae0ef699bd, type: 3}
       propertyPath: multiShotSpacing
       value: 0.3
