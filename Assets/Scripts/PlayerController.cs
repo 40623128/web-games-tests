@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
     public UIDocument uiDocument;
     private Label scoreText;
     private Button restartButton;
+    private Button mainMenuButton;
     private Label livesText;
 
     [Header("VFX")]
@@ -89,6 +90,7 @@ public class PlayerController : MonoBehaviour
         {
             scoreText = uiDocument.rootVisualElement.Q<Label>("ScoreLabel");
             restartButton = uiDocument.rootVisualElement.Q<Button>("RestartButton");
+            mainMenuButton = uiDocument.rootVisualElement.Q<Button>("MainMenuButton");
             goldText = uiDocument.rootVisualElement.Q<Label>("GoldCount");
             livesText = uiDocument.rootVisualElement.Q<Label>("LivesLabel"); // ✅ 新增這個 Label
 
@@ -96,6 +98,12 @@ public class PlayerController : MonoBehaviour
             {
                 restartButton.style.display = DisplayStyle.None;
                 restartButton.clicked += ReloadScene;
+            }
+
+            if (mainMenuButton != null)
+            {
+                mainMenuButton.style.display = DisplayStyle.None; // 你想一開始就顯示可改 Flex
+                mainMenuButton.clicked += GoToMainMenu;
             }
         }
 
@@ -143,7 +151,18 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         HandleShooting();
     }
+    void GoToMainMenu()
+    {
+        // 避免從暫停狀態回到主畫面後卡住
+        Time.timeScale = 1f;
 
+        // 保險：停掉噴射音效
+        if (thrustSource != null && thrustSource.isPlaying)
+            thrustSource.Stop();
+
+        // 讀取場景名或直接寫死 "MainMenu"
+        SceneManager.LoadScene("MainMenu");
+    }
     void UpdateScore()
     {
         elapsedTime += Time.deltaTime;
@@ -376,6 +395,9 @@ public class PlayerController : MonoBehaviour
 
         if (restartButton != null)
             restartButton.style.display = DisplayStyle.Flex;
+
+        if (mainMenuButton != null)
+            mainMenuButton.style.display = DisplayStyle.Flex;
 
         // ✅ 想保留屍體/避免再撞：關掉碰撞與顯示即可（比 Destroy 更穩）
         //if (playerCol != null) playerCol.enabled = false;

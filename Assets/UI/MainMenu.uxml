@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Root" style="flex-grow: 1; align-items: center; justify-content: center;">
+        <ui:VisualElement name="Panel" style="width: 420px; padding: 24px; background-color: rgba(0, 0, 0, 0.55); border-radius: 16px;">
+            <ui:Label text="My Project" name="Title" style="unity-font-style: bold; font-size: 42px; -unity-text-align: middle-center; margin-bottom: 18px; -unity-font-definition: url(&quot;project://database/Assets/Fonts/NotoSansTC-VariableFont_wght.ttf?fileID=12800000&amp;guid=880f485c23f92234dad379a886f3b557&amp;type=3#NotoSansTC-VariableFont_wght&quot;); -unity-font-style: bold;"/>
+            <ui:Button name="BtnStart" text="開始遊戲" style="height: 52px; margin-bottom: 10px; -unity-font-definition: url(&quot;project://database/Assets/Fonts/NotoSansTC-VariableFont_wght.ttf?fileID=12800000&amp;guid=880f485c23f92234dad379a886f3b557&amp;type=3#NotoSansTC-VariableFont_wght&quot;);"/>
+            <ui:Button name="BtnHow" text="操作說明" style="height: 46px; margin-bottom: 10px; -unity-font-definition: url(&quot;project://database/Assets/Fonts/NotoSansTC-VariableFont_wght.ttf?fileID=12800000&amp;guid=880f485c23f92234dad379a886f3b557&amp;type=3#NotoSansTC-VariableFont_wght&quot;);"/>
+            <ui:Button name="BtnQuit" text="離開遊戲" style="height: 46px; -unity-font-definition: url(&quot;project://database/Assets/Fonts/NotoSansTC-VariableFont_wght.ttf?fileID=12800000&amp;guid=880f485c23f92234dad379a886f3b557&amp;type=3#NotoSansTC-VariableFont_wght&quot;);"/>
+            <ui:Label name="Version" text="v0.8" style="margin-top: 16px; opacity: 0.75; -unity-text-align: middle-center; -unity-font-definition: url(&quot;project://database/Assets/Fonts/NotoSansTC-VariableFont_wght.ttf?fileID=12800000&amp;guid=880f485c23f92234dad379a886f3b557&amp;type=3#NotoSansTC-VariableFont_wght&quot;);"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
